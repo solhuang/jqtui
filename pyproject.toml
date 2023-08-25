@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "jqtui"
+version = "0.0.1"
+description = ""
+authors = ["Solomon Huang <huang.solomon@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+textual = "^0.34.0"
+pyjq = "^2.6.0"
+
+
+[tool.poetry.group.dev.dependencies]
+textual-dev = "^1.1.0"
+black = "^23.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+jqtui = "jqtui.jqtui:main"

@@ -1,0 +1,29 @@
+[
+  {
+      "id": 1,
+      "name": "Obi-Wan Kenobi",
+      "gender": "male",
+      "birth_year": 57,
+      "homeworld": {
+          "name": "Stewjon"
+      }
+  },
+  {
+      "id": 2,
+      "name": "Darth Vader",
+      "gender": "male",
+      "birth_year": 41,
+      "homeworld": {
+          "name": "Tatooine"
+      }
+  },
+  {
+      "id": 3,
+      "name": "C-3PO",
+      "gender": "n/a",
+      "birth_year": 112,
+      "homeworld": {
+          "name": "Tatooine"
+      }
+  }
+]
