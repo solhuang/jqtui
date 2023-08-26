@@ -13,9 +13,10 @@ from rich.syntax import Syntax
 from rich.json import JSON
 from pyjq import ScriptRuntimeError
 from typing import Any
+import typer
+from typing_extensions import Annotated
 
-with open('example.json') as f:
-    data = json.loads(f.read())
+typer_app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 
 class Result(Static):
@@ -29,6 +30,13 @@ class ResultHeader(Static):
 class JQTUI(App):
     CSS_PATH = 'jqtui.css'
 
+    def __init__(self, filename, *args, **kwargs):
+        self.filename = filename
+        super().__init__(*args, **kwargs)
+
+        with open(filename) as f:
+            self.data = json.loads(f.read())
+
     def compose(self) -> ComposeResult:
         yield Input(id="input", placeholder="Type in a jq command")
         yield Static(id="message")
@@ -41,30 +49,30 @@ class JQTUI(App):
         """Called when app starts."""
         # Give the input focus, so we can start typing straight away
         self.query_one(Input).focus()
-        syntax = self.get_syntax([data])
+        syntax = self.get_syntax([self.data])
         self.query_one("#results").update(syntax)
-        self.query_one("#results-header").update("Displaying the original JSON")
+        self.query_one("#results-header").update('Displaying original file contents')
 
     async def on_input_changed(self, message: Input.Changed) -> None:
         """A coroutine to handle a text changed message."""
         if message.value:
             self.run_jq(message.value)
         else:
-            self.query_one("#results-header").update('Displaying the original JSON')
-            syntax = self.get_syntax([data])
+            self.query_one("#results-header").update('Displaying original contents')
+            syntax = self.get_syntax([self.data])
             self.query_one("#results").update(syntax)
             self.query_one('#input').remove_class('red_border')
 
     def run_jq(self, value):
         result = ''
         try:
-            filtered_data = pyjq.all(value, data)
+            filtered_data = pyjq.all(value, self.data)
             if not any(filtered_data):
                 raise ValueError('The results produced all Nones')
             syntax = self.get_syntax(items=filtered_data)
 
             self.query_one("#results-header").update(
-                f'Displaying results for: "{value}"'
+                f"Displaying results for: '{value}'"
             )
             self.query_one("#results").update(syntax)
             self.query_one("#message").update("")
@@ -85,13 +93,17 @@ class JQTUI(App):
             lines.append(json.dumps(item, indent=4))
 
         result = '\n'.join(lines)
-        syntax = Syntax(result, "json", theme="material", line_numbers=False, padding=1)
+        syntax = Syntax(result, 'json', theme='material', line_numbers=False, padding=1)
 
         return syntax
 
-def main():
-    app = JQTUI()
+
+def cli(filename: Annotated[str, typer.Argument(help='Name of the JSON file')]):
+    app = JQTUI(filename=filename)
     app.run()
+
+def main():
+    typer.run(cli)
 
 if __name__ == '__main__':
     main()

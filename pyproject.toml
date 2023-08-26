@@ -6,9 +6,10 @@ authors = ["Solomon Huang <huang.solomon@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.8,<4.0"
 textual = "^0.34.0"
 pyjq = "^2.6.0"
+typer = {extras = ["all"], version = "^0.9.0"}
 
 
 [tool.poetry.group.dev.dependencies]
