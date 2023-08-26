@@ -1,19 +1,13 @@
-import pyjq
-import _pyjq
 import json
-import sys
-from textual import work
+from typing import Any
+
+import pyjq
+import typer
+from pyjq import ScriptRuntimeError
+from rich.syntax import Syntax
 from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Input, Markdown, Static
-
-from textual.widget import Widget
-from textual.app import App, ComposeResult, RenderResult
-from rich.syntax import Syntax
-from rich.json import JSON
-from pyjq import ScriptRuntimeError
-from typing import Any
-import typer
 from typing_extensions import Annotated
 
 typer_app = typer.Typer(no_args_is_help=True, add_completion=False)
@@ -64,7 +58,6 @@ class JQTUI(App):
             self.query_one('#input').remove_class('red_border')
 
     def run_jq(self, value):
-        result = ''
         try:
             filtered_data = pyjq.all(value, self.data)
             if not any(filtered_data):
@@ -102,8 +95,10 @@ def cli(filename: Annotated[str, typer.Argument(help='Name of the JSON file')]):
     app = JQTUI(filename=filename)
     app.run()
 
+
 def main():
     typer.run(cli)
+
 
 if __name__ == '__main__':
     main()

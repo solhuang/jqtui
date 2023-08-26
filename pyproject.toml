@@ -15,6 +15,8 @@ typer = {extras = ["all"], version = "^0.9.0"}
 [tool.poetry.group.dev.dependencies]
 textual-dev = "^1.1.0"
 black = "^23.7.0"
+ruff = "^0.0.286"
+tox = "^4.10.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -22,3 +24,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 jqtui = "jqtui.jqtui:main"
+
+[tool.ruff]
+# Enable flake8-bugbear (`B`) rules.
+# E - pycodestyle
+# I - isort
+# B - flake8-bugbear
+# F - Pyflakes
+select = ["E", "F", "B", "I"]
