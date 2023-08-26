@@ -29,22 +29,13 @@ Input {
     color: $text;
 }
 
-#md {
-    width: 100%;
-    height: 100%;
-    height: auto;
-    padding: 0 0 0 0;
-    margin: 0 1 0 1;
-    /* background: red; */
-}
-
 #results-container {
     background: $background 50%;
     margin: 0 0 0 0;
     height: 100%;
     overflow: hidden auto;
     border: tall $background;
-    padding: 0 1 0 1;
+    padding: -1 1 0 1;
 }
 
 #results-container:focus {
@@ -56,5 +47,10 @@ Input {
     margin: 0 0 1 0;
     border: tall $background;
     padding: 0 0 0 2;
+    color: $text 60%;
+    /* display: none; */
+}
+
+.hide {
     display: none;
 }
