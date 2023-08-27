@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any
 
 import pyjq
@@ -12,6 +13,13 @@ from textual.widgets import Footer, Input, Static
 from typing_extensions import Annotated
 
 typer_app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+logging.basicConfig(
+    filename='/tmp/jqtui.log',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
+)
+logger = logging.getLogger('__name__')
 
 
 class Result(Static):
@@ -65,8 +73,6 @@ class JQTUI(App):
 
     def on_mount(self) -> None:
         """Called when app starts."""
-        # Give the input focus, so we can start typing straight away
-        # self.query_one(Input).focus()
         syntax = self.get_syntax([self.data])
         self.query_one("#results").update(syntax)
         self.query_one("#results-header").update('Displaying original file contents')
