@@ -3,6 +3,7 @@ import logging
 from typing import Any
 
 import pyjq
+import pyperclip
 import typer
 from pyjq import ScriptRuntimeError
 from rich.syntax import Syntax
@@ -42,9 +43,15 @@ class JQTUI(App):
     BINDINGS = [
         Binding(key="ctrl+c", action="quit", description="Quit", priority=True),
         Binding(
-            key="ctrl+t",
+            key="ctrl+r ",
             action="toggle_errors",
             description="Show/Hide Errors",
+            priority=True,
+        ),
+        Binding(
+            key="ctrl+b",
+            action="copy_results",
+            description="Copy results to clipboard",
             priority=True,
         ),
     ]
@@ -62,6 +69,12 @@ class JQTUI(App):
         else:
             self.query_one('#message').add_class('hide')
 
+    def action_copy_results(self):
+        """
+        Copy results to the clipboard
+        """
+        pyperclip.copy(self.formatted_result)
+
     def compose(self) -> ComposeResult:
         yield Input(id="input", placeholder="Type in a jq command")
         yield Message(id="message", classes="hide")
@@ -73,7 +86,8 @@ class JQTUI(App):
 
     def on_mount(self) -> None:
         """Called when app starts."""
-        syntax = self.get_syntax([self.data])
+        self.formatted_result = self.format_result([self.data])
+        syntax = self.get_syntax(self.formatted_result)
         self.query_one("#results").update(syntax)
         self.query_one("#results-header").update('Displaying original file contents')
 
@@ -83,7 +97,8 @@ class JQTUI(App):
             self.run_jq(message.value)
         else:
             self.query_one("#results-header").update('Displaying original contents')
-            syntax = self.get_syntax([self.data])
+            self.formatted_result = self.format_result([self.data])
+            syntax = self.get_syntax(self.formatted_result)
             self.query_one("#results").update(syntax)
             self.query_one('#input').remove_class('red_border')
 
@@ -92,7 +107,9 @@ class JQTUI(App):
             filtered_data = pyjq.all(value, self.data)
             if not any(filtered_data):
                 raise ValueError('The query did not produce any results')
-            syntax = self.get_syntax(items=filtered_data)
+
+            self.formatted_result = self.format_result(filtered_data)
+            syntax = self.get_syntax(self.formatted_result)
 
             self.query_one("#results-header").update(
                 f"Displaying results for: '{value}'"
@@ -106,19 +123,23 @@ class JQTUI(App):
             self.query_one('#input').add_class('red_border')
             self.query_one("#message").update(f"ERROR: {e}")
 
-    def get_syntax(self, items: list[Any]):
+    def format_result(self, items: list[Any]) -> str:
         """
-        Given a list of dictionaries, convert it to a Syntax object
+        Given a list of dictionaries, convert it to a jq output
 
         Each item in the list is json serializable
         """
         lines = []
-
         for item in items:
             lines.append(json.dumps(item, indent=4))
-
         result = '\n'.join(lines)
-        syntax = Syntax(result, 'json', theme='material', line_numbers=False, padding=1)
+        return result
+
+    def get_syntax(self, value) -> Syntax:
+        """
+        Returns a syntax object
+        """
+        syntax = Syntax(value, 'json', theme='material', line_numbers=False, padding=1)
 
         return syntax
 
