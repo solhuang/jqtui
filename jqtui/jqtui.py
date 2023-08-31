@@ -54,10 +54,17 @@ class JQTUI(App):
             description="Copy results to clipboard",
             priority=True,
         ),
+        Binding(
+            key="ctrl+j",
+            action="copy_jq",
+            description="Copy jq expression to clipboard",
+            priority=True,
+        ),
     ]
 
     def __init__(self, filename):
         self.filename = filename
+        self.jq_expression = ''
         super().__init__()
 
         with open(filename) as f:
@@ -74,6 +81,12 @@ class JQTUI(App):
         Copy results to the clipboard
         """
         pyperclip.copy(self.formatted_result)
+
+    def action_copy_jq(self):
+        """
+        Copy jq expression to the clipboard
+        """
+        pyperclip.copy(self.jq_expression)
 
     def compose(self) -> ComposeResult:
         yield Input(id="input", placeholder="Type in a jq command")
@@ -108,6 +121,7 @@ class JQTUI(App):
             if not any(filtered_data):
                 raise ValueError('The query did not produce any results')
 
+            self.jq_expression = value
             self.formatted_result = self.format_result(filtered_data)
             syntax = self.get_syntax(self.formatted_result)
 
