@@ -24,11 +24,11 @@ logger = logging.getLogger('__name__')
 
 
 class Result(Static):
-    """Display a json."""
+    """Display results"""
 
 
 class ResultHeader(Static):
-    """Display a json."""
+    """Display header"""
 
 
 class Message(Static):
@@ -36,6 +36,14 @@ class Message(Static):
 
     def on_mount(self):
         self.update('Please enter a jq expression above')
+
+
+class Notification(Static):
+    def on_mount(self) -> None:
+        self.set_timer(2, self.remove)
+
+    def on_click(self) -> None:
+        self.remove()
 
 
 class JQTUI(App):
@@ -49,26 +57,26 @@ class JQTUI(App):
             priority=True,
         ),
         Binding(
-            key="ctrl+b",
-            action="copy_results",
-            description="Copy results to clipboard",
+            key="ctrl+o",
+            action="copy_output",
+            description="Copy output",
             priority=True,
         ),
         Binding(
-            key="ctrl+j",
-            action="copy_jq",
-            description="Copy jq expression to clipboard",
+            key="ctrl+y",
+            action="copy_query",
+            description="Copy query",
             priority=True,
         ),
     ]
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, data: dict):
+        """
+        data: the json that was loaded from file or from stdin
+        """
+        self.data = data
         self.jq_expression = ''
         super().__init__()
-
-        with open(filename) as f:
-            self.data = json.loads(f.read())
 
     def action_toggle_errors(self):
         if self.query_one('#message').has_class('hide'):
@@ -76,20 +84,24 @@ class JQTUI(App):
         else:
             self.query_one('#message').add_class('hide')
 
-    def action_copy_results(self):
+    def action_copy_output(self):
         """
-        Copy results to the clipboard
+        Copy output to the clipboard
         """
         pyperclip.copy(self.formatted_result)
+        message = "Successfully copied the output to the clipboard"
+        self.screen.mount(Notification(message))
 
-    def action_copy_jq(self):
+    def action_copy_query(self):
         """
         Copy jq expression to the clipboard
         """
         pyperclip.copy(self.jq_expression)
+        message = "Successfully copied the jq query to the clipboard"
+        self.screen.mount(Notification(message))
 
     def compose(self) -> ComposeResult:
-        yield Input(id="input", placeholder="Type in a jq command")
+        yield Input(id="input", placeholder="Type in a jq query")
         yield Message(id="message", classes="hide")
 
         with VerticalScroll(id="results-container"):
@@ -131,7 +143,7 @@ class JQTUI(App):
             self.query_one("#results").update(syntax)
             self.query_one('#input').remove_class('red_border')
             self.query_one("#message").update(
-                'Congrats! There are no errors with the jq syntax'
+                'Congrats! There are no errors with the jq query'
             )
         except (ValueError, ScriptRuntimeError) as e:
             self.query_one('#input').add_class('red_border')
@@ -159,11 +171,19 @@ class JQTUI(App):
 
 
 def cli(filename: Annotated[str, typer.Argument(help='Name of the JSON file')]):
-    app = JQTUI(filename=filename)
+    with open(filename) as f:
+        data = json.loads(f.read())
+    app = JQTUI(data=data)
     app.run()
 
 
 def main():
+    # TODO: fix piping
+    # if not sys.stdin.isatty():
+    #     data = json.loads(sys.stdin.read())
+    #     app = JQTUI(data=data)
+    #     app.run()
+
     typer.run(cli)
 
 

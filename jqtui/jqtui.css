@@ -34,13 +34,13 @@ Input {
     margin: 0 0 0 0;
     height: 100%;
     overflow: hidden auto;
-    border: tall $background;
-    padding: -1 1 0 1;
+    /* border: tall $background; */
+    padding: 0 1 0 1;
 }
 
-#results-container:focus {
+/* #results-container:focus {
     border: tall $accent;
-}
+}  */
 
 #message {
     background: $background 50%;
@@ -53,4 +53,15 @@ Input {
 
 .hide {
     display: none;
+}
+
+Notification {
+    dock: bottom;
+    layer: notification;
+    width: auto;
+    margin: 0 0 2 4;
+    padding: 1 2;
+    background: $background;
+    color: #00FF00;
+    height: auto;
 }
