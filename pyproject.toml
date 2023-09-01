@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jqtui"
-version = "0.0.1"
+version = "0.0.2"
 description = ""
 authors = ["Solomon Huang <huang.solomon@gmail.com>"]
 readme = "README.md"
