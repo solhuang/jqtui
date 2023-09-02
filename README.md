@@ -1,7 +1,9 @@
 # jqtui
-jqtui is a TUI (Text User Interface) for jq.  
 
-The TUI makes it easy to explore json files using jq.
+jqtui is a TUI for jq to easily read, explore, and search JSON data with jq.
+
+### Features
+- See the results as you type
 
 # Installing
 
@@ -16,7 +18,14 @@ pipx install jqtui
 ```
 
 # Usage
-Run the following to launch jqtui:
+
+Run jqtui with a filename:
 ```
-jqtui <name of JSON filename>
+curl https://api.github.com/repos/solhuang/jqtui/commits -o commits.json
+jqtui commits.json
+```
+
+Or run jqtui by piping the output from another command:
+```
+curl https://api.github.com/repos/solhuang/jqtui/commits | jqtui
 ```

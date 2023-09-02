@@ -15,6 +15,7 @@ from textual.containers import VerticalScroll
 from textual.widgets import Footer, Input, Static
 from typing_extensions import Annotated
 
+
 typer_app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 logging.basicConfig(
@@ -37,7 +38,7 @@ class Message(Static):
     """Display messages"""
 
     def on_mount(self):
-        self.update('Please enter a jq expression above')
+        self.update('Please enter a jq query above')
 
 
 class Notification(Static):
@@ -171,8 +172,10 @@ class JQTUI(App):
 
         return syntax
 
-
 def cli(filename: Annotated[str, typer.Argument(help='Name of the JSON file')]):
+    """
+    jqtui is a TUI to easily read, explore, and search JSON data with jq.
+    """
     try:
         with open(filename) as f:
             try:
@@ -196,7 +199,7 @@ def main():
             print('ERROR: The provided input is not in a valid JSON format')
             sys.exit(1)
 
-        # when piping reslts into jqtui, need to reset sys.stdin
+        # when piping results into jqtui, need to reset sys.stdin
         # so textual can accept keyboard input
         sys.stdin.close()
         sys.stdin = os.fdopen(1)
