@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+import sys
 from typing import Any
 
 import pyjq
@@ -171,20 +173,39 @@ class JQTUI(App):
 
 
 def cli(filename: Annotated[str, typer.Argument(help='Name of the JSON file')]):
-    with open(filename) as f:
-        data = json.loads(f.read())
+    try:
+        with open(filename) as f:
+            try:
+                data = json.loads(f.read())
+            except json.decoder.JSONDecodeError:
+                print('ERROR: The provided input is not in a valid JSON format')
+                sys.exit(1)
+    except FileNotFoundError as e:
+        print(f'ERROR: {e}')
+        sys.exit(1)
+
     app = JQTUI(data=data)
     app.run()
 
 
 def main():
-    # TODO: fix piping
-    # if not sys.stdin.isatty():
-    #     data = json.loads(sys.stdin.read())
-    #     app = JQTUI(data=data)
-    #     app.run()
+    if not sys.stdin.isatty():
+        try:
+            data = json.loads(sys.stdin.read())
+        except json.decoder.JSONDecodeError:
+            print('ERROR: The provided input is not in a valid JSON format')
+            sys.exit(1)
 
-    typer.run(cli)
+        # when piping reslts into jqtui, need to reset sys.stdin
+        # so textual can accept keyboard input
+        sys.stdin.close()
+        sys.stdin = os.fdopen(1)
+
+        app = JQTUI(data=data)
+        app.run()
+
+    else:
+        typer.run(cli)
 
 
 if __name__ == '__main__':
